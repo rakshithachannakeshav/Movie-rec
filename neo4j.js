@@ -33,7 +33,37 @@ async function closeDriver() {
   }
 }
 
+async function executeRead(query, params = {}) {
+  const driver = getDriver();
+  const session = driver.session();
+  try {
+    const result = await session.executeRead(tx => tx.run(query, params));
+    return result;
+  } catch (error) {
+    console.error('Neo4j Read Error:', error);
+    throw error;
+  } finally {
+    await session.close();
+  }
+}
+
+async function executeWrite(query, params = {}) {
+  const driver = getDriver();
+  const session = driver.session();
+  try {
+    const result = await session.executeWrite(tx => tx.run(query, params));
+    return result;
+  } catch (error) {
+    console.error('Neo4j Write Error:', error);
+    throw error;
+  } finally {
+    await session.close();
+  }
+}
+
 module.exports = {
   getDriver,
-  closeDriver
+  closeDriver,
+  executeRead,
+  executeWrite
 };
