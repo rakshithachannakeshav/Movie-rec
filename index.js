@@ -2,9 +2,41 @@ const express = require('express');
 const app = express();
 const pg = require('./postgres'); 
 const neo4j = require('./neo4j'); // Ensure this is imported for the graph part
+const queries = require('./queries'); // Import query strings
 require('dotenv').config();
 
 app.use(express.json());
+
+// MongoDB Routes
+const mongoRoutes = require('./mongo');
+app.use('/mongo', mongoRoutes);
+
+// Unified Recommend Routes
+const recommendRoutes = require('./recommend');
+app.use('/recommend', recommendRoutes);
+
+// --- 0. NEO4J RECOMMENDATIONS API ---
+app.get('/get_recommendations', async (req, res) => {
+    try {
+        const user_id = parseInt(req.query.user_id, 10);
+        if (isNaN(user_id)) {
+            return res.status(400).json({ error: "user_id MUST be an integer" });
+        }
+
+        const result = await neo4j.executeRead(queries.getRecommendationsQuery, { userId: user_id });
+        
+        // Extract movie_ids, accounting for Neo4j Integer objects or standard numbers safely
+        const recommendedMovies = result.records.map(record => {
+            const id = record.get('movie_id');
+            return id.toNumber ? id.toNumber() : id;
+        });
+
+        res.status(200).json({ recommended_movies: recommendedMovies });
+    } catch (err) {
+        console.error("Neo4j /get_recommendations Error:", err.message);
+        res.status(500).json({ error: "Failed to fetch recommendations from Neo4j" });
+    }
+});
 
 // --- 1. REGISTRATION API (POST) ---
 // Creates a user in Postgres and a corresponding node in Neo4j
@@ -19,9 +51,10 @@ app.post('/register', async (req, res) => {
         const newUser_id = pgResult.rows[0].user_id;
 
         // Step B: Sync with Neo4j (Optional but recommended for your project)
-        if (neo4j) {
-            await neo4j.executeWrite(tx => 
-                tx.run('CREATE (u:User {id: $id, username: $username})', { id: newUser_id, username: username })
+        if (neo4j && neo4j.executeWrite) {
+            await neo4j.executeWrite(
+                'CREATE (u:User {id: $id, username: $username})', 
+                { id: newUser_id, username: username }
             );
         }
 
