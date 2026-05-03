@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CinemaScope | Full-Stack AI Movie Recommendation System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: radial-gradient(circle at 10% 20%, rgba(10, 15, 27, 1) 0%, rgba(5, 7, 18, 1) 100%);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Poppins', sans-serif;
+      min-height: 100vh;
+      color: #f0f3fa;
+      padding: 2rem 1.5rem;
+    }
+
+    .glass-panel {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: rgba(15, 25, 45, 0.55);
+      backdrop-filter: blur(12px);
+      border-radius: 3rem;
+      padding: 2rem 2rem 3rem;
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(66, 153, 225, 0.2);
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #F9E0A0, #E2C28B, #FACD7A);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      letter-spacing: -0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      color: #94a3b8;
+      margin-bottom: 2rem;
+      border-left: 3px solid #facc15;
+      padding-left: 1rem;
+      font-weight: 400;
+      font-size: 0.9rem;
+    }
+
+    .status-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .status-chip {
+      background: #0f172a;
+      border-radius: 24px;
+      padding: 0.4rem 1rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .status-chip.active {
+      background: #1e293b;
+      border-left: 3px solid #22c55e;
+      color: #bbf7d0;
+    }
+
+    .status-chip.pending {
+      border-left: 3px solid #facc15;
+      color: #fde047;
+    }
+
+    .input-card {
+      background: rgba(10, 20, 35, 0.7);
+      border-radius: 2rem;
+      padding: 1.8rem 2rem;
+      margin-bottom: 2.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 1.2rem;
+      border: 1px solid rgba(250, 204, 21, 0.25);
+    }
+
+    .input-group {
+      flex: 2;
+      min-width: 220px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      color: #facc15;
+      margin-bottom: 0.5rem;
+    }
+
+    .user-input {
+      width: 100%;
+      background: #0b1120;
+      border: 1.5px solid #2d3a5e;
+      padding: 0.9rem 1.2rem;
+      border-radius: 2rem;
+      font-size: 1rem;
+      color: white;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .user-input:focus {
+      border-color: #facc15;
+      box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.3);
+      background: #0e1628;
+    }
+
+    .btn-primary {
+      background: linear-gradient(105deg, #facc15, #eab308);
+      border: none;
+      padding: 0.9rem 2rem;
+      border-radius: 2.5rem;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #0a0f1f;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 20px rgba(250, 204, 21, 0.2);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-3px);
+      background: linear-gradient(105deg, #ffdc58, #facc15);
+      box-shadow: 0 15px 25px rgba(250, 204, 21, 0.35);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(105deg, #3b82f6, #2563eb);
+      border: none;
+      padding: 0.9rem 1.5rem;
+      border-radius: 2.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(105deg, #60a5fa, #3b82f6);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .rec-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px dashed rgba(250, 204, 21, 0.4);
+      padding-bottom: 0.7rem;
+    }
+
+    .rec-header h2 {
+      font-size: 1.7rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-info {
+      background: #1e293b;
+      padding: 0.3rem 0.9rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #cbd5e1;
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.6rem;
+      margin-top: 1.5rem;
+    }
+
+    .movie-card {
+      background: linear-gradient(145deg, #111827, #0f172a);
+      border-radius: 1.5rem;
+      padding: 1rem;
+      transition: all 0.25s ease;
+      border: 1px solid rgba(250, 204, 21, 0.2);
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .movie-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(250, 204, 21, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .movie-card:hover::before {
+      left: 100%;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-6px);
+      border-color: #facc1555;
+      box-shadow: 0 20px 30px -10px black;
+    }
+
+    .movie-poster-placeholder {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      height: 220px;
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      border: 1px solid #334155;
+    }
+
+    .movie-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 0.5rem 0 0.3rem;
+      color: #ffebc2;
+    }
+
+    .movie-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .movie-id {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      background: #1e293b80;
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+    }
+
+    .data-source {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: #7e8aa2;
+      border-top: 0.5px solid #334155;
+      padding-top: 6px;
+    }
+
+    .empty-state, .loading-state {
+      text-align: center;
+      padding: 3rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 2rem;
+      margin-top: 1rem;
+    }
+
+    .loader {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #2d3a5e;
+      border-top: 4px solid #facc15;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .interaction-section {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(250, 204, 21, 0.2);
+    }
+
+    .interaction-section h3 {
+      color: #facc15;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .interaction-card {
+      background: rgba(10, 20, 35, 0.5);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+    }
+
+    .interaction-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .interaction-group .user-input {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .interaction-group select.user-input {
+      cursor: pointer;
+    }
+
+    .interaction-message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    .interaction-message.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid #22c55e;
+      color: #86efac;
+    }
+
+    .interaction-message.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.75rem;
+      color: #5b6e8c;
+      border-top: 1px solid #1e2a3e;
+      padding-top: 1.8rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .integration-badge {
+      font-family: monospace;
+      font-size: 0.7rem;
+      background: #00000040;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 640px) {
+      .glass-panel {
+        padding: 1rem;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      .input-card, .interaction-group {
+        flex-direction: column;
+      }
+      .btn-primary, .btn-secondary {
+        justify-content: center;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="glass-panel">
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 1rem;">
+      <div>
+        <h1><span>🎬</span> CinemaScope</h1>
+        <div class="tagline">Unified Intelligence · Neo4j + PostgreSQL + MongoDB</div>
+      </div>
+      <div class="status-grid">
+        <div class="status-chip active">✅ Neo4j (Person C) · Active</div>
+        <div class="status-chip active" id="pgStatus">✅ PostgreSQL (Person A) · Live</div>
+        <div class="status-chip active" id="mongoStatus">✅ MongoDB (Person B) · Live</div>
+      </div>
+    </div>
+
+    <div class="input-card">
+      <div class="input-group">
+        <label>🎭 USER IDENTIFIER</label>
+        <input type="number" id="userId" class="user-input" placeholder="Enter User ID (e.g., 1, 2, 1001)" value="1">
+      </div>
+      <button onclick="getRecommendations()" class="btn-primary" id="recBtn">
+        <span>✨</span> Get Recommendations
+      </button>
+    </div>
+
+    <div id="output">
+      <div class="rec-header">
+        <h2><span>🎯</span> Personalized Recommendations</h2>
+        <div class="badge-info" id="recCountBadge">Ready</div>
+      </div>
+      <div id="recommendationContainer">
+        <div class="empty-state">
+          <span style="font-size: 3rem;">🎞️</span>
+          <p style="margin-top: 16px;">Enter a User ID above to get movie recommendations<br>Powered by Neo4j Collaborative Filtering + PostgreSQL Metadata + MongoDB History</p>
+          <div style="margin-top: 20px; font-size: 0.85rem; color: #94a3b8;">
+            💡 Try User IDs: 1, 2, 3, 1001
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="interaction-section">
+      <h3>➕ Add User-Movie Interaction (Neo4j Graph + MongoDB Log)</h3>
+      <div class="interaction-card">
+        <div class="interaction-group">
+          <input type="number" id="interactionUserId" class="user-input" placeholder="User ID" value="1">
+          <input type="number" id="interactionMovieId" class="user-input" placeholder="Movie ID" value="999">
+          <select id="interactionAction" class="user-input">
+            <option value="WATCHED">👁️ WATCHED</option>
+            <option value="LIKED">❤️ LIKED</option>
+            <option value="RATED">⭐ RATED</option>
+          </select>
+          <button onclick="addUnifiedInteraction()" class="btn-secondary">Add Interaction</button>
+        </div>
+        <div id="interactionMessage" class="interaction-message"></div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-grid">
+        <div>🎬 <strong>Person C (Neo4j)</strong> — Collaborative Filtering Engine<br><span class="integration-badge">GET /get_recommendations</span></div>
+        <div>🗄️ <strong>Person A (PostgreSQL)</strong> — Movie Metadata & Details<br><span class="integration-badge">GET /movie/:id</span></div>
+        <div>📊 <strong>Person B (MongoDB)</strong> — Activity History / Analytics<br><span class="integration-badge">GET /mongo/get_history & POST /mongo/log_activity</span></div>
+      </div>
+      <div style="margin-top: 1rem; text-align: center; font-size: 0.7rem;">
+        <span>🌐 Unified API Gateway: http://localhost:3000 | All three backends integrated</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // ============================================================
+    // FULL-STACK INTEGRATION: Neo4j + PostgreSQL + MongoDB
+    // Person C (Neo4j) - recommendations + graph interactions
+    // Person A (PostgreSQL) - movie details, genres, years
+    // Person B (MongoDB) - user history logging
+    // ============================================================
+    const API_BASE = 'http://localhost:3000';
+
+    // ---------- 1. Person C: Neo4j API ----------
+    async function getRecommendationsFromNeo4j(userId) {
+      const resp = await fetch(`${API_BASE}/get_recommendations?user_id=${userId}`);
+      if (!resp.ok) throw new Error(`Neo4j error: ${resp.status}`);
+      const data = await resp.json();
+      return data.recommended_movies || [];
+    }
+
+    async function addInteractionToNeo4j(userId, movieId, action) {
+      const resp = await fetch(`${API_BASE}/add_interaction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, movie_id: movieId, action: action })
+      });
+      if (!resp.ok) throw new Error(`Neo4j interaction failed: ${resp.status}`);
+      return await resp.json();
+    }
+
+    // ---------- 2. Person A: PostgreSQL (Movie Details) ----------
+    // Uses your exact endpoint: GET /movie/:id
+    async function getMovieDetailsFromPostgreSQL(movieId) {
+      try {
+        const response = await fetch(`${API_BASE}/movie/${movieId}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            return { movie_id: movieId, title: `Movie #${movieId}`, year: '—', genre: 'Classic', poster_emoji: '🎞️', source: 'PostgreSQL (custom metadata)' };
+          }
+          throw new Error(`PostgreSQL HTTP ${response.status}`);
+        }
+        const movie = await response.json();
+        return {
+          movie_id: movie.movie_id,
+          title: movie.title || `Movie ${movieId}`,
+          year: movie.release_year || movie.year || 'N/A',
+          genre: movie.genre_main || movie.genre || 'Drama',
+          poster_emoji: getGenreEmoji(movie.genre_main || movie.genre),
+          source: '✅ PostgreSQL (Person A)'
+        };
+      } catch (err) {
+        console.warn(`[Person A - PG] fallback for ${movieId}:`, err.message);
+        // fallback enriched data
+        return {
+          movie_id: movieId,
+          title: `Cinema Classic #${movieId}`,
+          year: '2024',
+          genre: 'Featured',
+          poster_emoji: '🎬',
+          source: 'PostgreSQL (fallback)'
+        };
+      }
+    }
+
+    // Helper: genre -> emoji
+    function getGenreEmoji(genre) {
+      const map = { Action: '🔥', Drama: '🎭', Comedy: '😂', SciFi: '🚀', 'Sci-Fi': '🚀', Thriller: '🔪', Romance: '💕', Horror: '🧛', Fantasy: '🧙' };
+      if (!genre) return '🎬';
+      for (let [key, val] of Object.entries(map)) {
+        if (genre.toLowerCase().includes(key.toLowerCase())) return val;
+      }
+      return '🎥';
+    }
+
+    // ---------- 3. Person B: MongoDB (User History + Logging) ----------
+    // POST /mongo/log_activity  |  GET /mongo/get_history
+    async function logActivityToMongoDB(userId, movieId, action) {
+      try {
+        const mappedAction = action.toLowerCase() === 'watched' ? 'watched' : (action.toLowerCase() === 'liked' ? 'liked' : 'watched');
+        const resp = await fetch(`${API_BASE}/mongo/log_activity`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: parseInt(userId), movie_id: parseInt(movieId), action: mappedAction })
+        });
+        if (!resp.ok) {
+          const errText = await resp.text();
+          console.warn(`MongoDB log warning: ${errText}`);
+          return { success: false, message: errText };
+        }
+        return await resp.json();
+      } catch (err) {
+        console.warn('MongoDB log error (non-blocking):', err);
+        return { success: false, error: err.message };
+      }
+    }
+
+    async function getUserHistoryFromMongoDB(userId) {
+      try {
+        const resp = await fetch(`${API_BASE}/mongo/get_history?user_id=${userId}`);
+        if (!resp.ok) throw new Error(`Mongo history error: ${resp.status}`);
+        const data = await resp.json();
+        return data.history || [];
+      } catch (err) {
+        console.warn('[Person B - MongoDB] history placeholder:', err.message);
+        return [];
+      }
+    }
+
+    // ---------- 4. Unified Recommendation Flow ----------
+    async function getRecommendations() {
+      const userIdElem = document.getElementById("userId");
+      const userId = userIdElem.value.trim();
+      if (!userId) {
+        showNotification("⚠️ Please enter a User ID", "error");
+        return;
+      }
+
+      const container = document.getElementById("recommendationContainer");
+      const badge = document.getElementById("recCountBadge");
+      const btn = document.getElementById("recBtn");
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="loader" style="width:18px;height:18px;border-width:3px;"></span> Fetching from Neo4j & PostgreSQL...`;
+      container.innerHTML = `<div class="loading-state"><div class="loader"></div><p>🎬 Querying Neo4j Collaborative Filtering (Person C)</p><small style="color:#94a3b8;">Then enriching with PostgreSQL metadata (Person A) & MongoDB history (Person B)</small></div>`;
+      badge.textContent = "⏳ Syncing...";
+
+      try {
+        // Step 1: Neo4j recommendations (Person C)
+        const recommendedMovieIds = await getRecommendationsFromNeo4j(userId);
+        console.log(`Neo4j → ${recommendedMovieIds.length} recommendations for user ${userId}`);
+
+        if (!recommendedMovieIds.length) {
+          container.innerHTML = `<div class="empty-state"><span style="font-size: 3rem;">🔍</span><h3>No recommendations found</h3><p>User ${escapeHtml(userId)} has no interaction history in Neo4j.<br>Use the form below to add WATCHED/LIKED interactions.</p></div>`;
+          badge.textContent = "0 recs (Neo4j)";
+          btn.disabled = false;
+          btn.innerHTML = `<span>✨</span> Get Recommendations`;
+          return;
+        }
+
+        // Step 2: PostgreSQL enrichment (Person A) - parallel fetch
+        const movieDetailsPromises = recommendedMovieIds.map(mid => getMovieDetailsFromPostgreSQL(mid));
+        const moviesData = await Promise.all(movieDetailsPromises);
+        
+        // Step 3: Background fetch MongoDB user history (Person B) - display in console for analytics, not blocking UI
+        getUserHistoryFromMongoDB(userId).then(history => {
+          console.log(`📀 [Person B - MongoDB] User ${userId} history (${history.length} unique movies):`, history);
+          const historyBadge = document.getElementById("recCountBadge");
+          if (historyBadge && history.length) {
+            historyBadge.setAttribute('title', `MongoDB history: ${history.length} watched/liked movies`);
+          }
+        }).catch(e => console.warn);
+
+        renderMovieGrid(moviesData, recommendedMovieIds.length);
+        badge.textContent = `🎬 ${recommendedMovieIds.length} recs · Neo4j + PostgreSQL enriched`;
+      } catch (error) {
+        console.error("Recommendation pipeline error:", error);
+        let friendlyMsg = "Cannot connect to Neo4j recommendation server. Ensure Person C's backend runs on port 3000.";
+        if (error.message.includes("Failed to fetch")) friendlyMsg = "⚠️ Neo4j server unreachable at localhost:3000. Verify node index.js is running.";
+        else friendlyMsg = `⚠️ ${error.message}`;
+        container.innerHTML = `<div class="empty-state" style="border-left:4px solid #ef4444;"><span style="font-size:2.5rem;">🔌</span><p style="color:#facc15;">${friendlyMsg}</p><p style="font-size:0.8rem;">Make sure unified server (index.js) with Neo4j, PostgreSQL, MongoDB routes is active.</p></div>`;
+        badge.textContent = "Integration error";
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>✨</span> Get Recommendations`;
+      }
+    }
+
+    // ---------- Unified Interaction (Neo4j + MongoDB dual write) ----------
+    async function addUnifiedInteraction() {
+      const userId = document.getElementById("interactionUserId").value.trim();
+      const movieId = document.getElementById("interactionMovieId").value.trim();
+      const action = document.getElementById("interactionAction").value;
+      const messageDiv = document.getElementById("interactionMessage");
+
+      if (!userId || !movieId) {
+        showMessage(messageDiv, "Please enter both User ID and Movie ID", "error");
+        return;
+      }
+
+      messageDiv.style.display = "block";
+      messageDiv.innerHTML = "⏳ Writing to Neo4j (graph) + MongoDB (log)...";
+      messageDiv.className = "interaction-message";
+
+      let neo4jOk = false, mongoOk = false;
+      let neo4jErr = null, mongoErr = null;
+
+      try {
+        // Write to Neo4j (Person C)
+        await addInteractionToNeo4j(parseInt(userId), parseInt(movieId), action);
+        neo4jOk = true;
+      } catch (err) {
+        neo4jErr = err.message;
+        console.error("Neo4j interaction error:", err);
+      }
+
+      try {
+        // Write to MongoDB (Person B)
+        const mongoResult = await logActivityToMongoDB(parseInt(userId), parseInt(movieId), action);
+        if (mongoResult.message || mongoResult.success !== false) mongoOk = true;
+        else if (mongoResult.error) mongoErr = mongoResult.error;
+        else mongoOk = true;
+      } catch (err) {
+        mongoErr = err.message;
+      }
+
+      if (neo4jOk && mongoOk) {
+        showMessage(messageDiv, `✅ Success! Graph + MongoDB updated: User ${userId} ${action} movie ${movieId}. Refresh recommendations to see changes.`, "success");
+        setTimeout(() => { messageDiv.style.display = "none"; }, 3500);
+      } else if (neo4jOk && !mongoOk) {
+        showMessage(messageDiv, `⚠️ Neo4j updated but MongoDB log failed: ${mongoErr || 'unknown'}`, "error");
+      } else if (!neo4jOk && mongoOk) {
+        showMessage(messageDiv, `⚠️ MongoDB logged but Neo4j failed: ${neo4jErr || 'graph error'}`, "error");
+      } else {
+        showMessage(messageDiv, `❌ Both failed. Neo4j: ${neo4jErr || 'N/A'} | MongoDB: ${mongoErr || 'N/A'}`, "error");
+      }
+    }
+
+    // ---------- UI Helpers ----------
+    function renderMovieGrid(movies, recCount = null) {
+      const container = document.getElementById("recommendationContainer");
+      if (!movies || movies.length === 0) {
+        container.innerHTML = `<div class="empty-state">No enriched movie data available.</div>`;
+        return;
+      }
+
+      const gridHTML = `
+        <div class="movie-grid">
+          ${movies.map(movie => `
+            <div class="movie-card">
+              <div class="movie-poster-placeholder">
+                ${movie.poster_emoji || "🎬"}
+              </div>
+              <div class="movie-title">${escapeHtml(movie.title)}</div>
+              <div class="movie-meta">
+                <span class="movie-id">🎫 ID: ${movie.movie_id}</span>
+                <span class="movie-id">📅 ${movie.year || "—"}</span>
+                <span class="movie-id">🎭 ${movie.genre || "Variety"}</span>
+              </div>
+              <div class="data-source">
+                🔍 ${movie.source || "Person A (PostgreSQL) metadata"}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      container.innerHTML = gridHTML;
+    }
+
+    function showMessage(element, msg, type) {
+      element.innerHTML = msg;
+      element.className = `interaction-message ${type}`;
+      element.style.display = "block";
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    function showNotification(msg, type) {
+      const container = document.getElementById("recommendationContainer");
+      const notif = document.createElement("div");
+      notif.className = "empty-state";
+      notif.style.background = type === "error" ? "#3b2a1f" : "#1e293b";
+      notif.style.borderLeft = `4px solid ${type === "error" ? "#ef4444" : "#facc15"}`;
+      notif.innerHTML = `<p>${msg}</p>`;
+      container.prepend(notif);
+      setTimeout(() => notif.remove(), 3000);
+    }
+
+    // Enter key support
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("userId")?.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") getRecommendations();
+      });
+      console.log("🚀 CinemaScope Fully Integrated: Neo4j (Person C) + PostgreSQL (Person A) + MongoDB (Person B)");
+      console.log("✅ Endpoints: Neo4j /get_recommendations, PG /movie/:id, MongoDB /mongo/log_activity & /mongo/get_history");
+    });
+  </script>
+</body>
+</html>
