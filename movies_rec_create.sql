@@ -1,0 +1,20 @@
+-- 1. Enable UUID generation
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- 2. Create the Users table
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 3. Create the Movies table
+CREATE TABLE movies (
+    movie_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    release_year INTEGER,
+    genre_main TEXT,
+    rating_avg DECIMAL(3,2) DEFAULT 0.0
+);
