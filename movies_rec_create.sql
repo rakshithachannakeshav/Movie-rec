@@ -3,7 +3,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- 2. Create the Users table
 CREATE TABLE users (
-    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id SERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE users (
 
 -- 3. Create the Movies table
 CREATE TABLE movies (
-    movie_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    movie_id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     release_year INTEGER,
     genre_main TEXT,

@@ -1,3 +1,5 @@
+TRUNCATE TABLE users, movies, ratings CASCADE;
+
 INSERT INTO users (username, email, password_hash) VALUES 
 ('amit_sharma', 'amit.s@example.com', 'password123'), ('ananya_m', 'ananya.m@example.com', 'password123'),
 ('ishita_s', 'ishita.s@example.com', 'password123'), ('rohan_m', 'rohan.m@example.com', 'password123'),
@@ -27,15 +29,9 @@ INSERT INTO users (username, email, password_hash) VALUES
 
 ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;
 SELECT * FROM public.users
-ORDER BY user_id ASC 
+ORDER BY user_id ASC;
 
-CREATE TABLE ratings (
-    rating_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(user_id),
-    movie_id UUID REFERENCES movies(movie_id),
-    rating_value DECIMAL(2,1) CHECK (rating_value >= 0 AND rating_value <= 5),
-    created_at TIMESTAMP DEFAULT NOW()
-);
+
 
 INSERT INTO movies (title, genre_main, release_year) VALUES 
 ('The Northman', 'Action', 2022), ('Everything Everywhere All at Once', 'Sci-Fi', 2022),

@@ -1,10 +1,12 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const pg = require('./postgres'); 
 const neo4j = require('./neo4j'); // Ensure this is imported for the graph part
 const queries = require('./queries'); // Import query strings
 require('dotenv').config();
 
+app.use(cors());
 app.use(express.json());
 
 // MongoDB Routes
@@ -38,6 +40,25 @@ app.get('/get_recommendations', async (req, res) => {
     }
 });
 
+// --- 0.5. NEO4J ADD INTERACTION API ---
+app.post('/add_interaction', async (req, res) => {
+    try {
+        const { user_id, movie_id, action } = req.body;
+        
+        if (!Number.isInteger(user_id) || !Number.isInteger(movie_id) || !action) {
+            return res.status(400).json({ error: "Invalid input parameters" });
+        }
+
+        const query = queries.getAddInteractionQuery(action);
+        await neo4j.executeWrite(query, { userId: user_id, movieId: movie_id });
+        
+        res.status(200).json({ message: "Interaction added to Neo4j successfully" });
+    } catch (err) {
+        console.error("Neo4j /add_interaction Error:", err.message);
+        res.status(500).json({ error: "Failed to add interaction to Neo4j" });
+    }
+});
+
 // --- 1. REGISTRATION API (POST) ---
 // Creates a user in Postgres and a corresponding node in Neo4j
 app.post('/register', async (req, res) => {
@@ -53,7 +74,7 @@ app.post('/register', async (req, res) => {
         // Step B: Sync with Neo4j (Optional but recommended for your project)
         if (neo4j && neo4j.executeWrite) {
             await neo4j.executeWrite(
-                'CREATE (u:User {id: $id, username: $username})', 
+                'CREATE (u:User {user_id: $id, username: $username})', 
                 { id: newUser_id, username: username }
             );
         }

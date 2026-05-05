@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CinemaScope | Full-Stack AI Movie Recommendation System</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+    rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -37,7 +40,7 @@
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
       letter-spacing: -0.5px;
       display: inline-flex;
       align-items: center;
@@ -245,14 +248,62 @@
 
     .movie-poster-placeholder {
       background: linear-gradient(135deg, #1e293b, #0f172a);
-      height: 220px;
+      height: 300px;
       border-radius: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 3rem;
       margin-bottom: 1rem;
       border: 1px solid #334155;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background: #0f172a;
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      padding: 2rem;
+      border-radius: 1.5rem;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .directory-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1.2rem;
+      background: #1e293b;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-weight: 500;
+    }
+
+    .directory-item:hover {
+      background: #334155;
+    }
+
+    .directory-id {
+      background: #0f172a;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #facc15;
     }
 
     .movie-title {
@@ -288,10 +339,11 @@
       padding-top: 6px;
     }
 
-    .empty-state, .loading-state {
+    .empty-state,
+    .loading-state {
       text-align: center;
       padding: 3rem;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.3);
       border-radius: 2rem;
       margin-top: 1rem;
     }
@@ -308,8 +360,13 @@
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     .interaction-section {
@@ -395,40 +452,44 @@
       .glass-panel {
         padding: 1rem;
       }
+
       h1 {
         font-size: 2rem;
       }
-      .input-card, .interaction-group {
+
+      .input-card,
+      .interaction-group {
         flex-direction: column;
       }
-      .btn-primary, .btn-secondary {
+
+      .btn-primary,
+      .btn-secondary {
         justify-content: center;
         width: 100%;
       }
     }
   </style>
 </head>
+
 <body>
   <div class="glass-panel">
     <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 1rem;">
       <div>
         <h1><span>🎬</span> CinemaScope</h1>
-        <div class="tagline">Unified Intelligence · Neo4j + PostgreSQL + MongoDB</div>
-      </div>
-      <div class="status-grid">
-        <div class="status-chip active">✅ Neo4j (Person C) · Active</div>
-        <div class="status-chip active" id="pgStatus">✅ PostgreSQL (Person A) · Live</div>
-        <div class="status-chip active" id="mongoStatus">✅ MongoDB (Person B) · Live</div>
+        <div class="tagline">Your intelligent movie companion</div>
       </div>
     </div>
 
     <div class="input-card">
       <div class="input-group">
-        <label>🎭 USER IDENTIFIER</label>
-        <input type="number" id="userId" class="user-input" placeholder="Enter User ID (e.g., 1, 2, 1001)" value="1">
+        <label>🎭 WHO IS WATCHING? (USER ID)</label>
+        <input type="number" id="userId" class="user-input" placeholder="Enter User ID (e.g., 1, 2, 10)" value="1">
       </div>
       <button onclick="getRecommendations()" class="btn-primary" id="recBtn">
         <span>✨</span> Get Recommendations
+      </button>
+      <button onclick="openDirectory()" class="btn-secondary" style="margin-left: auto;">
+        <span>📖</span> View Movie Directory
       </button>
     </div>
 
@@ -440,16 +501,16 @@
       <div id="recommendationContainer">
         <div class="empty-state">
           <span style="font-size: 3rem;">🎞️</span>
-          <p style="margin-top: 16px;">Enter a User ID above to get movie recommendations<br>Powered by Neo4j Collaborative Filtering + PostgreSQL Metadata + MongoDB History</p>
+          <p style="margin-top: 16px;">Enter your User ID above to discover movies tailored just for you.</p>
           <div style="margin-top: 20px; font-size: 0.85rem; color: #94a3b8;">
             💡 Try User IDs: 1, 2, 3, 1001
           </div>
         </div>
       </div>
     </div>
-    
+
     <div class="interaction-section">
-      <h3>➕ Add User-Movie Interaction (Neo4j Graph + MongoDB Log)</h3>
+      <h3>🎬 Watched something recently? Log it here:</h3>
       <div class="interaction-card">
         <div class="interaction-group">
           <input type="number" id="interactionUserId" class="user-input" placeholder="User ID" value="1">
@@ -466,15 +527,25 @@
     </div>
 
     <footer>
-      <div class="footer-grid">
-        <div>🎬 <strong>Person C (Neo4j)</strong> — Collaborative Filtering Engine<br><span class="integration-badge">GET /get_recommendations</span></div>
-        <div>🗄️ <strong>Person A (PostgreSQL)</strong> — Movie Metadata & Details<br><span class="integration-badge">GET /movie/:id</span></div>
-        <div>📊 <strong>Person B (MongoDB)</strong> — Activity History / Analytics<br><span class="integration-badge">GET /mongo/get_history & POST /mongo/log_activity</span></div>
-      </div>
-      <div style="margin-top: 1rem; text-align: center; font-size: 0.7rem;">
-        <span>🌐 Unified API Gateway: http://localhost:3000 | All three backends integrated</span>
+      <div style="margin-top: 1rem; text-align: center; font-size: 0.8rem; color: #94a3b8;">
+        <span>Powered by Advanced AI Collaborative Filtering</span>
       </div>
     </footer>
+  </div>
+
+  <!-- Directory Modal -->
+  <div id="directoryModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="color: #facc15; font-size: 1.5rem; margin:0;">📖 Movie Directory</h2>
+        <button onclick="closeDirectory()"
+          style="background: none; border: none; color: white; font-size: 2rem; cursor: pointer; line-height: 1;">&times;</button>
+      </div>
+      <div id="directoryList"
+        style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 8px;">
+        <div style="text-align: center; padding: 2rem;"><span class="loader"></span></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -596,44 +667,37 @@
       const btn = document.getElementById("recBtn");
 
       btn.disabled = true;
-      btn.innerHTML = `<span class="loader" style="width:18px;height:18px;border-width:3px;"></span> Fetching from Neo4j & PostgreSQL...`;
-      container.innerHTML = `<div class="loading-state"><div class="loader"></div><p>🎬 Querying Neo4j Collaborative Filtering (Person C)</p><small style="color:#94a3b8;">Then enriching with PostgreSQL metadata (Person A) & MongoDB history (Person B)</small></div>`;
-      badge.textContent = "⏳ Syncing...";
+      btn.innerHTML = `<span class="loader" style="width:18px;height:18px;border-width:3px;"></span> Finding matches...`;
+      container.innerHTML = `<div class="loading-state"><div class="loader"></div><p>🎬 Analyzing your watch history...</p><small style="color:#94a3b8;">Finding users with similar tastes</small></div>`;
+      badge.textContent = "⏳ Analyzing...";
 
       try {
-        // Step 1: Neo4j recommendations (Person C)
-        const recommendedMovieIds = await getRecommendationsFromNeo4j(userId);
-        console.log(`Neo4j → ${recommendedMovieIds.length} recommendations for user ${userId}`);
+        // Call the Unified Backend Route (Person D's integration script)
+        // This route handles Neo4j, MongoDB history filtering, and Postgres metadata all at once!
+        const resp = await fetch(`${API_BASE}/recommend?user_id=${userId}`);
+        if (!resp.ok) throw new Error(`Integration API failed: ${resp.status}`);
+        const data = await resp.json();
+        const moviesData = data.recommendations || [];
 
-        if (!recommendedMovieIds.length) {
-          container.innerHTML = `<div class="empty-state"><span style="font-size: 3rem;">🔍</span><h3>No recommendations found</h3><p>User ${escapeHtml(userId)} has no interaction history in Neo4j.<br>Use the form below to add WATCHED/LIKED interactions.</p></div>`;
-          badge.textContent = "0 recs (Neo4j)";
-          btn.disabled = false;
-          btn.innerHTML = `<span>✨</span> Get Recommendations`;
+        console.log(`Backend returned ${moviesData.length} enriched recommendations for user ${userId}`);
+
+        if (!moviesData.length) {
+          container.innerHTML = `<div class="empty-state"><span style="font-size: 3rem;">🔍</span><h3>No recommendations found</h3><p>We don't have enough data to make recommendations yet.<br>Watch or like some movies first!</p></div>`;
+          badge.textContent = "0 recommendations";
           return;
         }
 
-        // Step 2: PostgreSQL enrichment (Person A) - parallel fetch
-        const movieDetailsPromises = recommendedMovieIds.map(mid => getMovieDetailsFromPostgreSQL(mid));
-        const moviesData = await Promise.all(movieDetailsPromises);
-        
-        // Step 3: Background fetch MongoDB user history (Person B) - display in console for analytics, not blocking UI
-        getUserHistoryFromMongoDB(userId).then(history => {
-          console.log(`📀 [Person B - MongoDB] User ${userId} history (${history.length} unique movies):`, history);
-          const historyBadge = document.getElementById("recCountBadge");
-          if (historyBadge && history.length) {
-            historyBadge.setAttribute('title', `MongoDB history: ${history.length} watched/liked movies`);
-          }
-        }).catch(e => console.warn);
+        // Add real movie posters from TMDB
+        // (Runs in parallel to be fast)
+        await Promise.all(moviesData.map(async (movie) => {
+          movie.poster_url = await getMoviePoster(movie.title, movie.year);
+        }));
 
-        renderMovieGrid(moviesData, recommendedMovieIds.length);
-        badge.textContent = `🎬 ${recommendedMovieIds.length} recs · Neo4j + PostgreSQL enriched`;
+        renderMovieGrid(moviesData, moviesData.length);
+        badge.textContent = `🎬 ${moviesData.length} recommendations found`;
       } catch (error) {
         console.error("Recommendation pipeline error:", error);
-        let friendlyMsg = "Cannot connect to Neo4j recommendation server. Ensure Person C's backend runs on port 3000.";
-        if (error.message.includes("Failed to fetch")) friendlyMsg = "⚠️ Neo4j server unreachable at localhost:3000. Verify node index.js is running.";
-        else friendlyMsg = `⚠️ ${error.message}`;
-        container.innerHTML = `<div class="empty-state" style="border-left:4px solid #ef4444;"><span style="font-size:2.5rem;">🔌</span><p style="color:#facc15;">${friendlyMsg}</p><p style="font-size:0.8rem;">Make sure unified server (index.js) with Neo4j, PostgreSQL, MongoDB routes is active.</p></div>`;
+        container.innerHTML = `<div class="empty-state" style="border-left:4px solid #ef4444;"><span style="font-size:2.5rem;">🔌</span><p style="color:#facc15;">⚠️ Backend integration failed: ${error.message}</p></div>`;
         badge.textContent = "Integration error";
       } finally {
         btn.disabled = false;
@@ -654,7 +718,7 @@
       }
 
       messageDiv.style.display = "block";
-      messageDiv.innerHTML = "⏳ Writing to Neo4j (graph) + MongoDB (log)...";
+      messageDiv.innerHTML = "⏳ Logging your activity...";
       messageDiv.className = "interaction-message";
 
       let neo4jOk = false, mongoOk = false;
@@ -680,14 +744,10 @@
       }
 
       if (neo4jOk && mongoOk) {
-        showMessage(messageDiv, `✅ Success! Graph + MongoDB updated: User ${userId} ${action} movie ${movieId}. Refresh recommendations to see changes.`, "success");
+        showMessage(messageDiv, `✅ Successfully logged! You ${action} movie ${movieId}. Refresh recommendations to see updates.`, "success");
         setTimeout(() => { messageDiv.style.display = "none"; }, 3500);
-      } else if (neo4jOk && !mongoOk) {
-        showMessage(messageDiv, `⚠️ Neo4j updated but MongoDB log failed: ${mongoErr || 'unknown'}`, "error");
-      } else if (!neo4jOk && mongoOk) {
-        showMessage(messageDiv, `⚠️ MongoDB logged but Neo4j failed: ${neo4jErr || 'graph error'}`, "error");
       } else {
-        showMessage(messageDiv, `❌ Both failed. Neo4j: ${neo4jErr || 'N/A'} | MongoDB: ${mongoErr || 'N/A'}`, "error");
+        showMessage(messageDiv, `⚠️ Oops! Something went wrong logging your activity.`, "error");
       }
     }
 
@@ -703,17 +763,19 @@
         <div class="movie-grid">
           ${movies.map(movie => `
             <div class="movie-card">
-              <div class="movie-poster-placeholder">
-                ${movie.poster_emoji || "🎬"}
-              </div>
+              ${movie.poster_url
+          ? `<img src="${movie.poster_url}" alt="${escapeHtml(movie.title)}" class="movie-poster-img" style="width: 100%; height: 300px; object-fit: cover; border-radius: 1rem; margin-bottom: 1rem;">`
+          : `<div class="movie-poster-placeholder">
+                    <span style="font-size: 1.4rem; color: #cbd5e1; font-weight: 700; line-height: 1.4; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                      ${escapeHtml(movie.title)}
+                    </span>
+                   </div>`
+        }
               <div class="movie-title">${escapeHtml(movie.title)}</div>
               <div class="movie-meta">
                 <span class="movie-id">🎫 ID: ${movie.movie_id}</span>
                 <span class="movie-id">📅 ${movie.year || "—"}</span>
                 <span class="movie-id">🎭 ${movie.genre || "Variety"}</span>
-              </div>
-              <div class="data-source">
-                🔍 ${movie.source || "Person A (PostgreSQL) metadata"}
               </div>
             </div>
           `).join('')}
@@ -730,7 +792,7 @@
 
     function escapeHtml(str) {
       if (!str) return '';
-      return String(str).replace(/[&<>]/g, function(m) {
+      return String(str).replace(/[&<>]/g, function (m) {
         if (m === '&') return '&amp;';
         if (m === '<') return '&lt;';
         if (m === '>') return '&gt;';
@@ -749,14 +811,55 @@
       setTimeout(() => notif.remove(), 3000);
     }
 
-    // Enter key support
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("userId")?.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") getRecommendations();
+    // TMDB Movie Poster Fetcher
+    // You need a free API key from https://www.themoviedb.org/ settings/api
+    const TMDB_API_KEY = "1f35fe65c0e0baf62b5fb36cb7bebfb8";
+
+    async function getMoviePoster(title, year) {
+      if (!TMDB_API_KEY || TMDB_API_KEY === "PUT_YOUR_TMDB_API_KEY_HERE") return null;
+      try {
+        const resp = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}`);
+        const data = await resp.json();
+        if (data.results && data.results.length > 0 && data.results[0].poster_path) {
+          return `https://image.tmdb.org/t/p/w500${data.results[0].poster_path}`;
+        }
+      } catch (err) {
+        console.warn("Failed to fetch poster for", title);
+      }
+      return null;
+    }
+
+    // Modal Logic
+    async function openDirectory() {
+      document.getElementById('directoryModal').style.display = 'flex';
+      const list = document.getElementById('directoryList');
+      try {
+        const resp = await fetch(`${ API_BASE }/movies`);
+          const movies = await resp.json();
+          list.innerHTML = movies.map(m => `
+          <div class="directory-item" onclick="document.getElementById('interactionMovieId').value = ${m.movie_id}; closeDirectory(); document.getElementById('interactionMovieId').focus();" style="cursor: pointer;">
+            <div>${escapeHtml(m.title)} <span style="color:#94a3b8; font-size:0.8rem; margin-left:8px;">${m.genre || ''}</span></div>
+            <div class="directory-id">ID: ${m.movie_id}</div>
+          </div>
+        `).join('');
+        } catch (err) {
+          list.innerHTML = `<div style="color: #ef4444; padding: 1rem;">Failed to load movies. Is the server running?</div>`;
+        }
+      }
+
+    function closeDirectory() {
+        document.getElementById('directoryModal').style.display = 'none';
+      }
+
+      // Enter key support
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("userId")?.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") getRecommendations();
+        });
+        console.log("🚀 CinemaScope Fully Integrated: Neo4j (Person C) + PostgreSQL (Person A) + MongoDB (Person B)");
+        console.log("✅ Endpoints: Neo4j /get_recommendations, PG /movie/:id, MongoDB /mongo/log_activity & /mongo/get_history");
       });
-      console.log("🚀 CinemaScope Fully Integrated: Neo4j (Person C) + PostgreSQL (Person A) + MongoDB (Person B)");
-      console.log("✅ Endpoints: Neo4j /get_recommendations, PG /movie/:id, MongoDB /mongo/log_activity & /mongo/get_history");
-    });
   </script>
 </body>
+
 </html>
